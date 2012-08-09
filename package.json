@@ -6,7 +6,8 @@
   "dependencies": {
     "node-static": "~0.6.0",
     "jade": "~0.26.3",
-    "commander": "~1.0.0"
+    "commander": "~1.0.0",
+    "nconf": "~0.6.4"
   },
   "devDependencies": {},
   "scripts": {
