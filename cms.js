@@ -31,12 +31,15 @@ var layout_path = path.join(content_path, 'layouts');
 var page_template = path.join(__dirname, 'templates/content.jade');
 var layout_template = path.join(__dirname, 'templates/layout.jade');
 
-if (!fs.existsSync(content_path)) {
-  fs.mkdirSync(content_path);
-}
 
-if (!fs.existsSync(layout_path)) {
-  fs.mkdirSync(layout_path);
+function ensureDirectories() {
+  if (!fs.existsSync(content_path)) {
+    fs.mkdirSync(content_path);
+  }
+
+  if (!fs.existsSync(layout_path)) {
+    fs.mkdirSync(layout_path);
+  }
 }
 
 
@@ -44,29 +47,32 @@ program
     .command('page')
     .description('generate a page')
     .option('-n, --page <page>', 'Name of the file?')
-    .option('-l, --layout_name [layout]', 'Optional layout name?', 'default')
     .action(function(options) {
       if (!!!options.page) {
         console.log('-n not specified.');
         return;
       }
 
-      console.log('content: %s', content_path);
-      console.log('layout: %s', layout_path);
-      console.log('name: %s', options.page);
-      
-      var page_path = path.join(content_path, options.page + '.jade');
-      var layout_path = path.join(content_path, options.layout + '.jade');
+      var page_file = path.join(content_path, options.page + '.jade');
+      var layout_file = path.join(layout_path, 'default' + '.jade');
 
-      if (fs.existsSync(page_path)) {
-        console.log("The specified page [%s] already exsists.", page_path);
+      if (fs.existsSync(page_file)) {
+        console.log("The specified page [%s] already exsists.", page_file);
         return;
       }
 
+      console.log('content: %s', content_path);
+      console.log('layout: %s', layout_file);
+      console.log('name: %s', options.page);
+
+      ensureDirectories();
+      createFile(page_template, page_file);
+
+      if (!fs.existsSync(layout_file)) {
+        createFile(layout_template, layout_file);
+      }
+
       sitemap.set(options.page, {});
-
-      createFile(page_template, page_path);
-
       sitemap.save("sitemap", function (err) {});
     });
 
@@ -77,10 +83,11 @@ program.command('layout')
       var document_path = path.join(layout_path, options.layout + '.jade');
 
       if (fs.existsSync(document_path)) {
-        console.log("The specified page [%s] already exsists.", document_path);
+        console.log("The specified layout [%s] already exsists.", document_path);
         return;
       }
 
+      ensureDirectories();
       createFile(layout_template, document_path);
     });
 
@@ -93,11 +100,9 @@ program
 function createFile(source, destination) {
   fs.readFile(source, function(err, data) {
     if (err) throw err;
-
     fs.writeFile(destination, data, function(err) {
       if (err) throw err;
       console.log('Created %s', destination);
     });
   }); 
 }
-
