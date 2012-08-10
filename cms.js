@@ -24,13 +24,21 @@ config.load();
 config.save();
 
 // load sitemap
-console.log('sitemap %s', config.get('sitemap'));
 sitemap.file({type: 'file', file: config.get('sitemap')});
 sitemap.load();
 
-var layout_path = path.join(content_path, 'layout');
+var layout_path = path.join(content_path, 'layouts');
 var page_template = path.join(__dirname, 'templates/content.jade');
 var layout_template = path.join(__dirname, 'templates/layout.jade');
+
+if (!fs.existsSync(content_path)) {
+  fs.mkdirSync(content_path);
+}
+
+if (!fs.existsSync(layout_path)) {
+  fs.mkdirSync(layout_path);
+}
+
 
 program
     .command('page')
@@ -51,7 +59,7 @@ program
       var layout_path = path.join(content_path, options.layout + '.jade');
 
       if (fs.existsSync(page_path)) {
-        console.log("The specified page [%s] already exsists.", destination);
+        console.log("The specified page [%s] already exsists.", page_path);
         return;
       }
 
@@ -60,6 +68,20 @@ program
       createFile(page_template, page_path);
 
       sitemap.save("sitemap", function (err) {});
+    });
+
+program.command('layout')
+    .description('generate a layout')
+    .option('-n, --layout <layout>', 'Name of the file?')
+    .action(function(options) {
+      var document_path = path.join(layout_path, options.layout + '.jade');
+
+      if (fs.existsSync(document_path)) {
+        console.log("The specified page [%s] already exsists.", document_path);
+        return;
+      }
+
+      createFile(layout_template, document_path);
     });
 
 program
@@ -78,3 +100,4 @@ function createFile(source, destination) {
     });
   }); 
 }
+
