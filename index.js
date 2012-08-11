@@ -19,7 +19,7 @@ config.argv()
     .file({file: path.join(__dirname, 'config.json')})
     .defaults({
       'content': path.join(__dirname, 'content'),
-      'static': path.join(__dirname, 'content'),
+      'static': path.join(__dirname, 'static'),
       'sitemap': 'sitemap.json'
     });
 config.load();
@@ -149,5 +149,5 @@ function createFile(source, destination) {
       if (err) throw err;
       console.log('Created %s', destination);
     });
-  }); 
+  });
 }
