@@ -1,9 +1,8 @@
-- var title = "The title"
+extends layouts/default
 
-extends layout/default
-
-block scripts
+block vars
+  - var title = 'Foo'
 
 block content
-  h1= title
+  h1 #{title}
   
