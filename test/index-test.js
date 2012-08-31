@@ -25,9 +25,14 @@ module.exports = {
     test.done();
   },
 
-  // testStaticConfig: function(test) {
-  //   miracle_max.init(temp);
-  //   var config = miracle_max.loadConfiguration(temp.dir);
-  //   test.done();
-  // }
+  testLoadConfiguration: function(test) {
+    miracle_max.init(temp);
+    var config = miracle_max.loadConfiguration(temp.dir);
+    test.equal(config.static_config.content, './content');
+    test.equal(config.static_config.static, './static');
+    test.equal(config.static_config.sitemap, './sitemap.json');
+    test.equal(config.content_path, './content');
+    test.equal(config.layout_path, './content/layouts');
+    test.done();
+  }
 }

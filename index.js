@@ -1,4 +1,3 @@
-var config = require('nconf');
 var fs = require('fs');
 var jade = require('jade');
 var jadeLoader = require('./lib/jade-static.js');
@@ -6,36 +5,59 @@ var path = require('path');
 var program = require('commander');
 var sitemap = require('nconf');
 var staticLoader = require('node-static');
+var util = require('util');
+
+var PAGE_TEMPLATE = path.join(__dirname, 'templates/content.jade');
+var LAYOUT_TEMPLATE = path.join(__dirname, 'templates/layout.jade');
 
 /********************************************************************
 * Configuration
 ********************************************************************/
 
-var content_path = path.join(__dirname, 'content');
+var loadConfiguration = exports.loadConfiguration = function(dir_path) {
+  var config = {}
+  var CONFIG_PATH = path.join(dir_path || './', 'static-config.json');
 
-// Load general config data
-config.argv()
-    .env()
-    .file({file: path.join(__dirname, 'config.json')})
-    .defaults({
-      'content': path.join(__dirname, 'content'),
-      'static': path.join(__dirname, 'static'),
-      'sitemap': 'sitemap.json'
-    });
-config.load();
-config.save();
+  // Load general config data
+  if (fs.existsSync(CONFIG_PATH)) {
+    try {
+      config.static_config = JSON.parse(fs.readFileSync(CONFIG_PATH));
+    } catch(err) {
+      console.log('failed loading config file: %s', err);
+    }
+  }
 
-// load sitemap
-sitemap.file({type: 'file', file: config.get('sitemap')});
-sitemap.load();
+  if (!config.static_config) {
+    throw new Exception('no configuration found or configuration was empty');
+  }
 
-var layout_path = path.join(content_path, 'layouts');
-var page_template = path.join(__dirname, 'templates/content.jade');
-var layout_template = path.join(__dirname, 'templates/layout.jade');
+  // load sitemap
+  if (fs.existsSync(config.static_config.sitemap)) {
+    config.sitemap = JSON.parse(fs.readFileSync(config.static_config.sitemap));
+  }
+
+  config.content_path = config.static_config.content;
+  config.layout_path = './' + path.join(config.content_path, 'layouts');
+  return config;
+}
+
+exports.getStaticConfig = function () {
+  return {
+    'config': config,
+    'sitemap': sitemap,
+    'content_path': content_path,
+    'layout_path': layout_path
+  }
+}
 
 /********************************************************************
 * Console/Program
 ********************************************************************/
+
+program
+    .command('init')
+    .description('creates configs used by the static content generator')
+    .action(init);
 
 program
     .command('generate')
@@ -76,10 +98,10 @@ program
       console.log('name: %s', options.page);
 
       ensureDirectories();
-      createFile(page_template, page_file);
+      createFile(PAGE_TEMPLATE, page_file);
 
       if (!fs.existsSync(layout_file)) {
-        createFile(layout_template, layout_file);
+        createFile(LAYOUT_TEMPLATE, layout_file);
       }
 
       sitemap.set(options.page, {});
@@ -98,7 +120,7 @@ program.command('layout')
       }
 
       ensureDirectories();
-      createFile(layout_template, document_path);
+      createFile(LAYOUT_TEMPLATE, document_path);
     });
 
 program
@@ -108,6 +130,17 @@ program
 /********************************************************************
 * Helper functions
 ********************************************************************/
+
+var init = exports.init = function(dir_path) {
+  var base_path = fs.realpathSync(dir_path.dir || './');
+  var config = {
+    'content': './content',
+    'static': './static',
+    'sitemap': './sitemap.json'
+  };
+  fs.writeFileSync(path.join(base_path, 'static-config.json'), JSON.stringify(config, null, 2));
+  fs.writeFileSync(path.join(base_path, 'sitemap.json'), '{}');
+}
 
 function runDevServer(options) {
   var templatePath = config.get('content');

@@ -15,4 +15,5 @@ node_modules
 npm-debug.log
 content
 config.json
+static-config.json
 sitemap.json
