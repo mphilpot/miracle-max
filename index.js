@@ -24,11 +24,12 @@ var loadConfiguration = exports.loadConfiguration = function(dir_path) {
       config.static_config = JSON.parse(fs.readFileSync(CONFIG_PATH));
     } catch(err) {
       console.log('failed loading config file: %s', err);
+      throw err;
     }
   }
 
   if (!config.static_config) {
-    throw new Exception('no configuration found or configuration was empty');
+    throw new Error('no configuration found or configuration was empty');
   }
 
   // load sitemap
@@ -132,7 +133,7 @@ program
 ********************************************************************/
 
 var init = exports.init = function(dir_path) {
-  var base_path = fs.realpathSync(dir_path.dir || './');
+  var base_path = fs.realpathSync(dir_path || './');
   var config = {
     'content': './content',
     'static': './static',
@@ -182,5 +183,22 @@ function createFile(source, destination) {
       if (err) throw err;
       console.log('Created %s', destination);
     });
+  });
+}
+
+function createFile(source, destination) {
+  fs.readFile(source, function(err, data) {
+    if (err) throw err;
+    fs.writeFile(destination, data, function(err) {
+      if (err) throw err;
+      console.log('Created %s', destination);
+    });
+  });
+}
+
+function writeFile(destination, contents) {
+  fs.writeFile(destination, contents, function(err) {
+    if (err) throw err;
+    console.log('Wrote %s', destination);
   });
 }
