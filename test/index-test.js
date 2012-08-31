@@ -133,4 +133,19 @@ module.exports = {
 
     test.done();
   },
+
+  testCreateLayout: function(test) {
+    miracle_max.init();
+    var config = miracle_max.loadConfiguration();
+
+    var options = {
+      layout: 'test1'
+    };
+    miracle_max.createLayout(options);
+    var layout_path = path.join(config.layout_path, 'test1.jade');
+    test.ok(fs.existsSync(layout_path));
+    test.equals(fs.readFileSync(layout_path, 'utf8'),
+      fs.readFileSync(miracle_max.LAYOUT_TEMPLATE, 'utf8'));
+    test.done();
+  }
 }

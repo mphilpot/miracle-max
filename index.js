@@ -85,17 +85,7 @@ program
 program.command('layout')
     .description('generate a layout')
     .option('-n, --layout <layout>', 'Name of the file?')
-    .action(function(options) {
-      var document_path = path.join(layout_path, options.layout + '.jade');
-
-      if (fs.existsSync(document_path)) {
-        console.log("The specified layout [%s] already exsists.", document_path);
-        return;
-      }
-
-      ensureDirectories();
-      createFile(LAYOUT_TEMPLATE, document_path);
-    });
+    .action(createLayout);
 
 program
   .version('0.0.2')
@@ -141,6 +131,25 @@ var createPage = exports.createPage = function(options) {
 
   sitemap.set(options.page, {});
   sitemap.save("sitemap", function (err) {});
+}
+
+var createLayout = exports.createLayout = function(options) {
+  var config = loadConfiguration();
+
+  if (!!!options.layout) {
+    console.log('-n not specified.');
+    return;
+  }
+
+  var document_path = path.join(config.layout_path, options.layout + '.jade');
+
+  if (fs.existsSync(document_path)) {
+    console.log("The specified layout [%s] already exsists.", document_path);
+    return;
+  }
+
+  ensureDirectories(config);
+  createFile(LAYOUT_TEMPLATE, document_path);
 }
 
 function runDevServer(options) {
