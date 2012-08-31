@@ -11,46 +11,6 @@ var PAGE_TEMPLATE = exports.PAGE_TEMPLATE = path.join(__dirname, 'templates/cont
 var LAYOUT_TEMPLATE = exports.LAYOUT_TEMPLATE = path.join(__dirname, 'templates/layout.jade');
 
 /********************************************************************
-* Console/Program
-********************************************************************/
-
-program
-    .command('init')
-    .description('creates configs used by the static content generator')
-    .action(init);
-
-program
-    .command('generate')
-    .description('generate static content from templates')
-    .action(function() {
-      console.log('Not yet implemented');
-    });
-
-program
-    .command('dev')
-    .description('run a server that allows you to test template changes')
-    .option('-p, --port <port>', 'port to run the dev server on', 8080)
-    .action(runDevServer)
-    .on('--help', function() {
-      console.log('static -s static -v views -p 8080')
-    });
-
-program
-    .command('page')
-    .description('generate a page')
-    .option('-n, --page <page>', 'Name of the file?')
-    .action(createPage);
-
-program.command('layout')
-    .description('generate a layout')
-    .option('-n, --layout <layout>', 'Name of the file?')
-    .action(createLayout);
-
-program
-  .version('0.0.2')
-  .parse(process.argv);
-
-/********************************************************************
 * Command functions
 ********************************************************************/
 
@@ -77,7 +37,9 @@ var createPage = exports.createPage = function(options) {
   var layout_file = path.join(config.layout_path, 'default' + '.jade');
 
   if (fs.existsSync(page_file)) {
-    console.log("The specified page [%s] already exsists.", page_file);
+    if (require.main === module) {
+      console.log("The specified page [%s] already exsists.", page_file);
+    }
     return;
   }
 
@@ -103,7 +65,9 @@ var createLayout = exports.createLayout = function(options) {
   var document_path = path.join(config.layout_path, options.layout + '.jade');
 
   if (fs.existsSync(document_path)) {
-    console.log("The specified layout [%s] already exsists.", document_path);
+    if (require.main === module) {
+      console.log("The specified layout [%s] already exsists.", document_path);
+    }
     return;
   }
 
@@ -111,18 +75,21 @@ var createLayout = exports.createLayout = function(options) {
   createFile(LAYOUT_TEMPLATE, document_path);
 }
 
+var devServer = null;
 var runDevServer = exports.runDevServer = function (options) {
-  var templatePath = config.get('content');
-  var staticPath = config.get('static');
-
-  console.log('serving static content from %s', staticPath);
-  console.log('serving template content from %s', templatePath);
+  var config = loadConfiguration();
+  var templatePath = config.content_path
+  var staticPath = config.static_config.static;
 
   var file = new(staticLoader.Server)(staticPath);
   var jade = jadeLoader(templatePath);
 
-  require('http').createServer(function(request, response) {
+  devServer = require('http').createServer(function(request, response) {
     request.addListener('end', function() {
+      if (/^\/healthz$/.test(request.url)) {
+        response.end("ok");
+      }
+
       // TODO: handle /
       if (/jade$/.test(request.url)) {
         jade(request, response);
@@ -130,8 +97,15 @@ var runDevServer = exports.runDevServer = function (options) {
         file.serve(request, response);
       }
     });
-  }).listen(options.port);
-  console.log('listening on port %s', options.port);
+  });
+  devServer.listen(options.port);
+  if (require.main === module) {
+    console.log('listening on port %s', options.port);
+  }
+}
+
+exports.stopDevServer = function () {
+  devServer.close();
 }
 
 /********************************************************************
@@ -192,3 +166,43 @@ var loadConfiguration = exports.loadConfiguration = function() {
   config.layout_path = './' + path.join(config.content_path, 'layouts');
   return config;
 }
+
+/********************************************************************
+* Console/Program
+********************************************************************/
+
+program
+    .command('init')
+    .description('creates configs used by the static content generator')
+    .action(init);
+
+program
+    .command('generate')
+    .description('generate static content from templates')
+    .action(function() {
+      console.log('Not yet implemented');
+    });
+
+program
+    .command('dev')
+    .description('run a server that allows you to test template changes')
+    .option('-p, --port <port>', 'port to run the dev server on', 8080)
+    .action(runDevServer)
+    .on('--help', function() {
+      console.log('static -s static -v views -p 8080')
+    });
+
+program
+    .command('page')
+    .description('generate a page')
+    .option('-n, --page <page>', 'Name of the file?')
+    .action(createPage);
+
+program.command('layout')
+    .description('generate a layout')
+    .option('-n, --layout <layout>', 'Name of the file?')
+    .action(createLayout);
+
+program
+  .version('0.0.2')
+  .parse(process.argv);

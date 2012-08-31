@@ -1,10 +1,13 @@
-var temp = require('temp');
-var path = require('path');
 var fs = require('fs');
+var jade = require('jade');
+var path = require('path');
+var request = require('request');
+var temp = require('temp');
 var util = require('util');
 var miracle_max = require('../index');
 
 var orig_cwd = fs.realpathSync('./');
+var TEST_PORT = 10001;
 module.exports = {
   setUp: function(callback) {
     this.tmp_dir = temp.mkdirSync();
@@ -164,5 +167,50 @@ module.exports = {
     test.done();
   },
 
+  testRunDevServer: {
+    serverStarted: function(test) {
+      miracle_max.init();
+      miracle_max.runDevServer({port: TEST_PORT});
+      request.get('http://localhost:' + TEST_PORT + '/healthz', function(e, r, body) {
+        test.ifError(e);
+        test.equals(body, 'ok');
+        miracle_max.stopDevServer();
+        test.done();
+      });
+    },
 
+    servesJade: function(test) {
+      miracle_max.init();
+      var config = miracle_max.loadConfiguration();
+      miracle_max.createPage({page: 'test1'})
+      miracle_max.runDevServer({port: TEST_PORT});
+      request.get('http://localhost:' + TEST_PORT + '/test1.jade', function(e, r, body) {
+        test.ifError(e);
+        var requested_file = path.join(config.content_path, 'test1.jade');
+        var rendered_template = jade.compile(fs.readFileSync(requested_file), {filename: requested_file})({});
+        test.equals(body + '', rendered_template + '');
+        miracle_max.stopDevServer();
+        test.done();
+      });
+    },
+
+    servesStatic: function(test) {
+      // initialize the server
+      miracle_max.init();
+      var config = miracle_max.loadConfiguration();
+
+      // Create the static file
+      fs.mkdirSync(config.static_config.static);
+      fs.writeFileSync(path.join(config.static_config.static, 'test.txt'), 'test');
+      test.ok(fs.existsSync(path.join(config.static_config.static, 'test.txt')));
+
+      miracle_max.runDevServer({port: TEST_PORT});
+      request.get('http://localhost:' + TEST_PORT + '/test.txt', function(e, r, body) {
+        test.ifError(e);
+        test.equals(body, 'test');
+        miracle_max.stopDevServer();
+        test.done();
+      });
+    }
+  }
 }
