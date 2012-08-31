@@ -58,6 +58,17 @@ module.exports = {
       test.equal(config.layout_path, './views/layouts');
       test.done();
     },
+
+    configFileDoesntExsist: function(test) {
+      try {
+        miracle_max.loadConfiguration();
+        test.ok(false); // failure state
+      } catch (err) {
+        // expected exception
+      }
+
+      test.done();
+    }
   },
 
   testCreatePage: {
@@ -151,5 +162,7 @@ module.exports = {
     test.equals(fs.readFileSync(layout_path, 'utf8'),
       fs.readFileSync(miracle_max.LAYOUT_TEMPLATE, 'utf8'));
     test.done();
-  }
+  },
+
+
 }

@@ -29,7 +29,7 @@ var loadConfiguration = exports.loadConfiguration = function() {
   }
 
   if (!config.static_config) {
-    throw new Error('no configuration found or configuration was empty');
+    throw new Error('no configuration found or configuration was empty. Did you forget to run init?');
   }
 
   // load sitemap
@@ -64,7 +64,7 @@ program
     .command('generate')
     .description('generate static content from templates')
     .action(function() {
-      console.log('setup');
+      console.log('Not yet implemented');
     });
 
 program
@@ -152,7 +152,7 @@ var createLayout = exports.createLayout = function(options) {
   createFile(LAYOUT_TEMPLATE, document_path);
 }
 
-function runDevServer(options) {
+var runDevServer = exports.runDevServer = function (options) {
   var templatePath = config.get('content');
   var staticPath = config.get('static');
 
