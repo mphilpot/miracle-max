@@ -11,38 +11,6 @@ var PAGE_TEMPLATE = exports.PAGE_TEMPLATE = path.join(__dirname, 'templates/cont
 var LAYOUT_TEMPLATE = exports.LAYOUT_TEMPLATE = path.join(__dirname, 'templates/layout.jade');
 
 /********************************************************************
-* Configuration
-********************************************************************/
-
-var loadConfiguration = exports.loadConfiguration = function() {
-  var config = {}
-  var CONFIG_PATH = 'static-config.json';
-
-  // Load general config data
-  if (fs.existsSync(CONFIG_PATH)) {
-    try {
-      config.static_config = JSON.parse(fs.readFileSync(CONFIG_PATH));
-    } catch(err) {
-      console.log('failed loading config file: %s', err);
-      throw err;
-    }
-  }
-
-  if (!config.static_config) {
-    throw new Error('no configuration found or configuration was empty. Did you forget to run init?');
-  }
-
-  // load sitemap
-  if (fs.existsSync(config.static_config.sitemap)) {
-    config.sitemap = JSON.parse(fs.readFileSync(config.static_config.sitemap));
-  }
-
-  config.content_path = config.static_config.content;
-  config.layout_path = './' + path.join(config.content_path, 'layouts');
-  return config;
-}
-
-/********************************************************************
 * Console/Program
 ********************************************************************/
 
@@ -83,7 +51,7 @@ program
   .parse(process.argv);
 
 /********************************************************************
-* Helper functions
+* Command functions
 ********************************************************************/
 
 var init = exports.init = function(dir_path) {
@@ -166,6 +134,10 @@ var runDevServer = exports.runDevServer = function (options) {
   console.log('listening on port %s', options.port);
 }
 
+/********************************************************************
+* Helper functions
+********************************************************************/
+
 function ensureDirectories(config) {
   ensureDirectory(config.content_path);
   ensureDirectory(config.layout_path);
@@ -187,4 +159,36 @@ function writeFile(destination, contents) {
     if (err) throw err;
     console.log('Wrote %s', destination);
   });
+}
+
+/********************************************************************
+* Configuration
+********************************************************************/
+
+var loadConfiguration = exports.loadConfiguration = function() {
+  var config = {}
+  var CONFIG_PATH = 'static-config.json';
+
+  // Load general config data
+  if (fs.existsSync(CONFIG_PATH)) {
+    try {
+      config.static_config = JSON.parse(fs.readFileSync(CONFIG_PATH));
+    } catch(err) {
+      console.log('failed loading config file: %s', err);
+      throw err;
+    }
+  }
+
+  if (!config.static_config) {
+    throw new Error('no configuration found or configuration was empty. Did you forget to run init?');
+  }
+
+  // load sitemap
+  if (fs.existsSync(config.static_config.sitemap)) {
+    config.sitemap = JSON.parse(fs.readFileSync(config.static_config.sitemap));
+  }
+
+  config.content_path = config.static_config.content;
+  config.layout_path = './' + path.join(config.content_path, 'layouts');
+  return config;
 }
