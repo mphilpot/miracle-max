@@ -42,15 +42,6 @@ var loadConfiguration = exports.loadConfiguration = function() {
   return config;
 }
 
-exports.getStaticConfig = function () {
-  return {
-    'config': config,
-    'sitemap': sitemap,
-    'content_path': content_path,
-    'layout_path': layout_path
-  }
-}
-
 /********************************************************************
 * Console/Program
 ********************************************************************/
