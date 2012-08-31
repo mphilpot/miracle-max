@@ -7,9 +7,8 @@ var miracle_max = require('../index');
 var orig_cwd = fs.realpathSync('./');
 module.exports = {
   setUp: function(callback) {
-    var temp_dir = temp.mkdirSync().dir;
-    this.temp_dir = temp_dir;
-    process.cwd(temp_dir);
+    this.tmp_dir = temp.mkdirSync();
+    process.chdir(this.tmp_dir);
     callback();
   },
 
@@ -56,6 +55,82 @@ module.exports = {
     test.equal(config.static_config.sitemap, './sitemap.json');
     test.equal(config.content_path, './views');
     test.equal(config.layout_path, './views/layouts');
+    test.done();
+  },
+
+  testCreatePage: function(test) {
+    miracle_max.init();
+    var config = miracle_max.loadConfiguration();
+
+    var options = {
+      page: 'test1'
+    };
+    miracle_max.createPage(options);
+    var page_path = path.join(config.content_path, 'test1.jade');
+    test.ok(fs.existsSync(page_path));
+    test.equals(fs.readFileSync(page_path, 'utf8'),
+      fs.readFileSync(miracle_max.PAGE_TEMPLATE, 'utf8'));
+    var layout_path = path.join(config.layout_path, 'default.jade');
+    test.equals(fs.readFileSync(layout_path, 'utf8'),
+      fs.readFileSync(miracle_max.LAYOUT_TEMPLATE, 'utf8'));
+    test.ok(fs.existsSync(layout_path));
+    test.done();
+  },
+
+  testCreatePage_customContentLocation: function(test) {
+    var customConfig = {
+      'content': './views',
+      'static': './staticcontent',
+      'sitemap': './sitemap.json'
+    };
+    fs.writeFileSync(path.join(this.tmp_dir, 'static-config.json'), JSON.stringify(customConfig, null, 2));
+    fs.writeFileSync(path.join(this.tmp_dir, 'sitemap.json'), '{}');
+
+    var config = miracle_max.loadConfiguration();
+
+    var options = {
+      page: 'test1'
+    };
+    miracle_max.createPage(options);
+    test.ok(fs.existsSync(path.join(config.content_path, 'test1.jade')));
+    test.ok(fs.existsSync(path.join(config.layout_path, 'default.jade')));
+    test.done();
+  },
+
+  testCreatePage_pageAlreadyExists: function(test) {
+    miracle_max.init();
+    var config = miracle_max.loadConfiguration();
+
+    var page_path = path.join(config.content_path, 'test1.jade')
+    fs.mkdirSync(config.content_path);
+    fs.writeFileSync(page_path, "");
+
+    var options = {
+      page: 'test1'
+    };
+
+    miracle_max.createPage(options);
+    test.equals("", fs.readFileSync(page_path));
+
+    test.done();
+  },
+
+  testCreatePage_layoutAlreadyExists: function(test) {
+    miracle_max.init();
+    var config = miracle_max.loadConfiguration();
+
+    var layout_path = path.join(config.layout_path, 'default.jade')
+    fs.mkdirSync(config.content_path);
+    fs.mkdirSync(config.layout_path);
+    fs.writeFileSync(layout_path, "");
+
+    var options = {
+      page: 'test1'
+    };
+
+    miracle_max.createPage(options);
+    test.equals("", fs.readFileSync(layout_path));
+
     test.done();
   },
 }

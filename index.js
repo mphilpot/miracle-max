@@ -7,16 +7,16 @@ var sitemap = require('nconf');
 var staticLoader = require('node-static');
 var util = require('util');
 
-var PAGE_TEMPLATE = path.join(__dirname, 'templates/content.jade');
-var LAYOUT_TEMPLATE = path.join(__dirname, 'templates/layout.jade');
+var PAGE_TEMPLATE = exports.PAGE_TEMPLATE = path.join(__dirname, 'templates/content.jade');
+var LAYOUT_TEMPLATE = exports.LAYOUT_TEMPLATE = path.join(__dirname, 'templates/layout.jade');
 
 /********************************************************************
 * Configuration
 ********************************************************************/
 
-var loadConfiguration = exports.loadConfiguration = function(dir_path) {
+var loadConfiguration = exports.loadConfiguration = function() {
   var config = {}
-  var CONFIG_PATH = path.join(dir_path || './', 'static-config.json');
+  var CONFIG_PATH = 'static-config.json';
 
   // Load general config data
   if (fs.existsSync(CONFIG_PATH)) {
@@ -80,34 +80,7 @@ program
     .command('page')
     .description('generate a page')
     .option('-n, --page <page>', 'Name of the file?')
-    .action(function(options) {
-      if (!!!options.page) {
-        console.log('-n not specified.');
-        return;
-      }
-
-      var page_file = path.join(content_path, options.page + '.jade');
-      var layout_file = path.join(layout_path, 'default' + '.jade');
-
-      if (fs.existsSync(page_file)) {
-        console.log("The specified page [%s] already exsists.", page_file);
-        return;
-      }
-
-      console.log('content: %s', content_path);
-      console.log('layout: %s', layout_file);
-      console.log('name: %s', options.page);
-
-      ensureDirectories();
-      createFile(PAGE_TEMPLATE, page_file);
-
-      if (!fs.existsSync(layout_file)) {
-        createFile(LAYOUT_TEMPLATE, layout_file);
-      }
-
-      sitemap.set(options.page, {});
-      sitemap.save("sitemap", function (err) {});
-    });
+    .action(createPage);
 
 program.command('layout')
     .description('generate a layout')
@@ -143,6 +116,33 @@ var init = exports.init = function(dir_path) {
   fs.writeFileSync(path.join(base_path, 'sitemap.json'), '{}');
 }
 
+var createPage = exports.createPage = function(options) {
+  var config = loadConfiguration();
+
+  if (!!!options.page) {
+    console.log('-n not specified.');
+    return;
+  }
+
+  var page_file = path.join(config.content_path, options.page + '.jade');
+  var layout_file = path.join(config.layout_path, 'default' + '.jade');
+
+  if (fs.existsSync(page_file)) {
+    console.log("The specified page [%s] already exsists.", page_file);
+    return;
+  }
+
+  ensureDirectories(config);
+  createFile(PAGE_TEMPLATE, page_file);
+
+  if (!fs.existsSync(layout_file)) {
+    createFile(LAYOUT_TEMPLATE, layout_file);
+  }
+
+  sitemap.set(options.page, {});
+  sitemap.save("sitemap", function (err) {});
+}
+
 function runDevServer(options) {
   var templatePath = config.get('content');
   var staticPath = config.get('static');
@@ -166,34 +166,20 @@ function runDevServer(options) {
   console.log('listening on port %s', options.port);
 }
 
-function ensureDirectories() {
-  if (!fs.existsSync(content_path)) {
-    fs.mkdirSync(content_path);
-  }
+function ensureDirectories(config) {
+  ensureDirectory(config.content_path);
+  ensureDirectory(config.layout_path);
+}
 
-  if (!fs.existsSync(layout_path)) {
-    fs.mkdirSync(layout_path);
+function ensureDirectory(dir_path) {
+  if (!fs.existsSync(dir_path)) {
+    fs.mkdirSync(dir_path);
   }
 }
 
 function createFile(source, destination) {
-  fs.readFile(source, function(err, data) {
-    if (err) throw err;
-    fs.writeFile(destination, data, function(err) {
-      if (err) throw err;
-      console.log('Created %s', destination);
-    });
-  });
-}
-
-function createFile(source, destination) {
-  fs.readFile(source, function(err, data) {
-    if (err) throw err;
-    fs.writeFile(destination, data, function(err) {
-      if (err) throw err;
-      console.log('Created %s', destination);
-    });
-  });
+  var template = fs.readFileSync(source);
+  fs.writeFileSync(destination, template);
 }
 
 function writeFile(destination, contents) {
