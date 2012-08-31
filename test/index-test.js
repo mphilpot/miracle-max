@@ -20,7 +20,7 @@ module.exports = {
   },
 
   testInit: function(test) {
-    miracle_max.init(this.tmp_dir);
+    miracle_max.init();
     var config = JSON.parse(fs.readFileSync(path.join(this.tmp_dir, 'static-config.json')));
     test.ok(config);
     test.equal('./content', config.content);
@@ -30,8 +30,8 @@ module.exports = {
   },
 
   testLoadConfiguration: function(test) {
-    miracle_max.init(this.tmp_dir);
-    var config = miracle_max.loadConfiguration(this.tmp_dir);
+    miracle_max.init();
+    var config = miracle_max.loadConfiguration();
     test.equal(config.static_config.content, './content');
     test.equal(config.static_config.static, './static');
     test.equal(config.static_config.sitemap, './sitemap.json');
@@ -49,7 +49,7 @@ module.exports = {
     fs.writeFileSync(path.join(this.tmp_dir, 'static-config.json'), JSON.stringify(customConfig, null, 2));
     fs.writeFileSync(path.join(this.tmp_dir, 'sitemap.json'), '{}');
 
-    var config = miracle_max.loadConfiguration(this.tmp_dir);
+    var config = miracle_max.loadConfiguration();
 
     test.equal(config.static_config.content, './views');
     test.equal(config.static_config.static, './staticcontent');
