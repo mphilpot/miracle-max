@@ -4,14 +4,17 @@ var fs = require('fs');
 var util = require('util');
 var miracle_max = require('../index');
 
-
+var orig_cwd = fs.realpathSync('./');
 module.exports = {
   setUp: function(callback) {
-    this.tmp_dir = temp.mkdirSync().dir;
+    var temp_dir = temp.mkdirSync().dir;
+    this.temp_dir = temp_dir;
+    process.cwd(temp_dir);
     callback();
   },
 
   tearDown: function(callback) {
+    process.cwd(orig_cwd);
     temp.cleanup();
     callback();
   },
