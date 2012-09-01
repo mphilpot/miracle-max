@@ -80,7 +80,7 @@ module.exports = {
       var config = miracle_max.loadConfiguration();
 
       var options = {
-        page: 'test1'
+        path: 'test1'
       };
       miracle_max.createPage(options);
       var page_path = path.join(config.content_path, 'test1.jade');
@@ -106,7 +106,7 @@ module.exports = {
       var config = miracle_max.loadConfiguration();
 
       var options = {
-        page: 'test1'
+        path: 'test1'
       };
       miracle_max.createPage(options);
       test.ok(fs.existsSync(path.join(config.content_path, 'test1.jade')));
@@ -123,7 +123,7 @@ module.exports = {
       fs.writeFileSync(page_path, "");
 
       var options = {
-        page: 'test1'
+        path: 'test1'
       };
 
       miracle_max.createPage(options);
@@ -142,7 +142,7 @@ module.exports = {
       fs.writeFileSync(layout_path, "");
 
       var options = {
-        page: 'test1'
+        path: 'test1'
       };
 
       miracle_max.createPage(options);
@@ -182,7 +182,7 @@ module.exports = {
     servesJade: function(test) {
       miracle_max.init();
       var config = miracle_max.loadConfiguration();
-      miracle_max.createPage({page: 'test1'})
+      miracle_max.createPage({path: 'test1'})
       miracle_max.runDevServer({port: TEST_PORT});
       request.get('http://localhost:' + TEST_PORT + '/test1.jade', function(e, r, body) {
         test.ifError(e);

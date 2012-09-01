@@ -28,12 +28,16 @@ var init = exports.init = function(dir_path) {
 var createPage = exports.createPage = function(options) {
   var config = loadConfiguration();
 
-  if (!!!options.page) {
+  if (!!!options.path) {
     console.log('-n not specified.');
     return;
   }
 
-  var page_file = path.join(config.content_path, options.page + '.jade');
+  if (!(/^\//.test(options.path))) {
+    options.path = '/' + options.path;
+  }
+
+  var page_file = path.join(config.content_path, options.path + '.jade');
   var layout_file = path.join(config.layout_path, 'default' + '.jade');
 
   if (fs.existsSync(page_file)) {
@@ -84,10 +88,26 @@ var runDevServer = exports.runDevServer = function (options) {
   var file = new(staticLoader.Server)(staticPath);
   var jade = jadeLoader(templatePath);
 
+
+
   devServer = require('http').createServer(function(request, response) {
     request.addListener('end', function() {
       if (/^\/healthz$/.test(request.url)) {
         response.end("ok");
+      }
+
+      // TODO(philpott): Handle sitemap based requests
+
+      if (sitemap[request.url]) {
+
+        return fs.readFile(d, 'utf8', function(err, data) {
+          if (err != null) {
+            next();
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(jade.compile(data, jadeOptions)({}));
+        });
       }
 
       // TODO: handle /
@@ -195,7 +215,7 @@ program
 program
     .command('page')
     .description('generate a page')
-    .option('-n, --page <page>', 'Name of the file?')
+    .option('-p, --path <path>', 'path of the page?')
     .action(createPage);
 
 program.command('layout')
