@@ -229,5 +229,15 @@ module.exports = {
         test.done();
       });
     }
+  },
+
+  testGenerate: function(test) {
+    miracle_max.init();
+    miracle_max.createPage({path: '/test1'});
+    miracle_max.createPage({path: '/test2'});
+    miracle_max.generate();
+    test.ok(fs.existsSync(path.join('static', '/test1.html')));
+    test.ok(fs.existsSync(path.join('static', '/test2.html')));
+    test.done();
   }
 }

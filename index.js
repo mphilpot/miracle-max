@@ -81,7 +81,7 @@ var createLayout = exports.createLayout = function(options) {
 var devServer = null;
 var runDevServer = exports.runDevServer = function (options) {
   var config = loadConfiguration();
-  var templatePath = config.content_path
+  var templatePath = config.content_path;
   var staticPath = config.static_config.static;
 
   var file = new(staticLoader.Server)(staticPath);
@@ -115,6 +115,19 @@ var runDevServer = exports.runDevServer = function (options) {
 
 exports.stopDevServer = function () {
   devServer.close();
+}
+
+var generate = exports.generate = function(options) {
+  var config = loadConfiguration();
+
+  if (!fs.existsSync(config.static_config.static)) {
+    fs.mkdirSync(config.static_config.static);
+  }
+
+  for (var key in config.sitemap) {
+    var template = renderJadeFileForUrl(config, key);
+    fs.writeFileSync(path.join(config.static_config.static, key + '.html'), template);
+  }
 }
 
 /********************************************************************
@@ -209,9 +222,7 @@ program
 program
     .command('generate')
     .description('generate static content from templates')
-    .action(function() {
-      console.log('Not yet implemented');
-    });
+    .action(generate);
 
 program
     .command('dev')
