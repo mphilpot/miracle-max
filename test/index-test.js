@@ -27,7 +27,6 @@ module.exports = {
     test.ok(config);
     test.equal('./content', config.content);
     test.equal('./static', config.static);
-    test.equal('./sitemap.json', config.sitemap);
     test.done();
   },
 
@@ -37,7 +36,6 @@ module.exports = {
       var config = miracle_max.loadConfiguration();
       test.equal(config.static_config.content, './content');
       test.equal(config.static_config.static, './static');
-      test.equal(config.static_config.sitemap, './sitemap.json');
       test.equal(config.content_path, './content');
       test.equal(config.layout_path, './content/layouts');
       test.done();
@@ -46,8 +44,7 @@ module.exports = {
     customConfiguration: function(test) {
       var customConfig = {
         'content': './views',
-        'static': './staticcontent',
-        'sitemap': './sitemap.json'
+        'static': './staticcontent'
       };
       fs.writeFileSync(path.join(this.tmp_dir, 'static-config.json'), JSON.stringify(customConfig, null, 2));
       fs.writeFileSync(path.join(this.tmp_dir, 'sitemap.json'), '{}');
@@ -56,7 +53,6 @@ module.exports = {
 
       test.equal(config.static_config.content, './views');
       test.equal(config.static_config.static, './staticcontent');
-      test.equal(config.static_config.sitemap, './sitemap.json');
       test.equal(config.content_path, './views');
       test.equal(config.layout_path, './views/layouts');
       test.done();
@@ -91,7 +87,7 @@ module.exports = {
       test.equals(fs.readFileSync(layout_path, 'utf8'),
         fs.readFileSync(miracle_max.LAYOUT_TEMPLATE, 'utf8'));
       test.ok(fs.existsSync(layout_path));
-      var sitemap = parseJson(config.static_config.sitemap);
+      var sitemap = parseJson(miracle_max.SITEMAP_PATH);
       test.ok(sitemap.hasOwnProperty('/test1'));
       test.done();
     },
