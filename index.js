@@ -1,6 +1,5 @@
 var fs = require('fs');
 var jade = require('jade');
-var jadeLoader = require('./lib/jade-static.js');
 var path = require('path');
 var program = require('commander');
 var sitemap = require('nconf');
@@ -102,7 +101,6 @@ var runDevServer = exports.runDevServer = function(options) {
   var staticPath = config.static_config.static;
 
   var file = new(staticLoader.Server)(staticPath);
-  var jade = jadeLoader(templatePath);
 
   devServer = require('http').createServer(function(request, response) {
     request.addListener('end', function() {
@@ -113,7 +111,6 @@ var runDevServer = exports.runDevServer = function(options) {
         serveJadeFile(request, response, config);
       } else if (/jade$/.test(request.url)) {
         serveJadeFile(request, response, config);
-        // jade(request, response);
       } else {
         file.serve(request, response);
       }
