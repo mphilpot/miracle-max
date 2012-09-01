@@ -110,17 +110,10 @@ var runDevServer = exports.runDevServer = function(options) {
       if (/^\/healthz$/.test(request.url)) {
         response.end("ok");
       } else if (config.sitemap.hasOwnProperty(request.url)) {
-        try {
-          response.writeHead(200, {
-            'Content-Type': 'text/html'
-          });
-          response.end(renderJadeFileForUrl(config, request.url));
-        } catch (err) {
-          console.log('sitemap error ' + err);
-        }
-        return;
+        serveJadeFile(request, response, config);
       } else if (/jade$/.test(request.url)) {
-        jade(request, response);
+        serveJadeFile(request, response, config);
+        // jade(request, response);
       } else {
         file.serve(request, response);
       }
@@ -129,6 +122,17 @@ var runDevServer = exports.runDevServer = function(options) {
   devServer.listen(options.port);
   if (require.main === module) {
     console.log('listening on port %s', options.port);
+  }
+}
+
+function serveJadeFile(request, response, config) {
+  try {
+    response.writeHead(200, {
+      'Content-Type': 'text/html'
+    });
+    response.end(renderJadeFileForUrl(config, request.url));
+  } catch (err) {
+    console.log('error rendering file:\n ' + err);
   }
 }
 
@@ -191,7 +195,10 @@ function addToSitemap(config, url) {
 }
 
 function renderJadeFileForUrl(config, url) {
-  var file_path = path.join(config.content_path, url) + '.jade';
+  var file_path = path.join(config.content_path, url);
+  if (!/jade$/.test(url)) {
+    var file_path =  file_path + '.jade';
+  }
 
   if (!fs.existsSync(file_path)) {
     throw new Error('invalid sitemap path: ' + file_path);
