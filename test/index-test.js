@@ -152,6 +152,16 @@ module.exports = {
 
       test.done();
     },
+
+    createDuplicatePage : function(test) {
+      miracle_max.init();
+      miracle_max.createPage({path: '/test'});
+      miracle_max.createPage({path: '/test1', duplicate: '/test'});
+      var sitemap = JSON.parse(fs.readFileSync('sitemap.json', 'utf8'));
+      test.ok(sitemap.hasOwnProperty('/test1'));
+      test.equals(sitemap['/test1'].ref, '/test');
+      test.done();
+    }
   },
 
   testCreateLayout: function(test) {
@@ -235,9 +245,17 @@ module.exports = {
     miracle_max.init();
     miracle_max.createPage({path: '/test1'});
     miracle_max.createPage({path: '/test2'});
+    miracle_max.createPage({path: '/test3', duplicate: '/test2'});
     miracle_max.generate();
     test.ok(fs.existsSync(path.join('static', '/test1.html')));
     test.ok(fs.existsSync(path.join('static', '/test2.html')));
+    test.ok(fs.existsSync(path.join('static', '/test3.html')));
+    test.equals(fs.readFileSync(path.join('static', '/test2.html'), 'utf8'),
+        fs.readFileSync(path.join('static', '/test3.html'), 'utf8'));
     test.done();
   }
+}
+
+function parseJson(file) {
+  return JSON.parse(fs.readFileSync(file, 'utf8'));
 }

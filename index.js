@@ -42,8 +42,19 @@ var createPage = exports.createPage = function(options) {
 
   if (fs.existsSync(page_file)) {
     if (require.main === module) {
-      console.log("The specified page [%s] already exsists.", page_file);
+      console.log("The specified page [%s] already exists.", page_file);
     }
+    return;
+  }
+
+  if (!!options.duplicate) {
+    options.duplicate = toAbsoluteUrl(options.duplicate)
+    if(!config.sitemap.hasOwnProperty(options.duplicate)) {
+      console.log("The page your attempting to duplicate dosen't exist.", page_file);
+    }
+
+    config.sitemap[options.path] = {ref: options.duplicate};
+    writeJson(config.static_config.sitemap, config.sitemap);
     return;
   }
 
@@ -69,7 +80,7 @@ var createLayout = exports.createLayout = function(options) {
 
   if (fs.existsSync(document_path)) {
     if (require.main === module) {
-      console.log("The specified layout [%s] already exsists.", document_path);
+      console.log("The specified layout [%s] already exists.", document_path);
     }
     return;
   }
@@ -125,7 +136,8 @@ var generate = exports.generate = function(options) {
   }
 
   for (var key in config.sitemap) {
-    var template = renderJadeFileForUrl(config, key);
+    var sitemap_node = config.sitemap[key];
+    var template = renderJadeFileForUrl(config, sitemap_node.ref || key);
     fs.writeFileSync(path.join(config.static_config.static, key + '.html'), template);
   }
 }
@@ -133,6 +145,14 @@ var generate = exports.generate = function(options) {
 /********************************************************************
 * Helper functions
 ********************************************************************/
+
+function writeJson(file, object) {
+  fs.writeFileSync(file, JSON.stringify(object, null, 2));
+}
+
+function toAbsoluteUrl(url) {
+  return ((/^\//.test(url))) ? url : '/' + url;
+}
 
 function ensureDirectories(config) {
   ensureDirectory(config.content_path);
@@ -236,7 +256,8 @@ program
 program
     .command('page')
     .description('generate a page')
-    .option('-p, --path <path>', 'path of the page?')
+    .option('-p, --path <path>', 'path of the page')
+    .option('-d, --duplicate <path>', 'path of the page to duplicate')
     .action(createPage);
 
 program.command('layout')
