@@ -21,8 +21,8 @@ var init = exports.init = function() {
       'content': './content',
       'static': './static'
     };
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
-    fs.writeFileSync(SITEMAP_PATH, '{}');
+    writeJson(CONFIG_PATH, config);
+    writeJson(SITEMAP_PATH, {});
   }
 
 var createPage = exports.createPage = function(options) {
@@ -41,7 +41,10 @@ var createPage = exports.createPage = function(options) {
     var layout_file = path.join(config.layout_path, 'default' + '.jade');
 
     if (fs.existsSync(page_file)) {
-      if (require.main === module) {
+      if (!config.sitemap.hasOwnProperty(options.path)) {
+        config.sitemap[options.path] = {};
+        writeJson(SITEMAP_PATH, config.sitemap);
+      } else if (require.main === module) {
         console.log("The specified page [%s] already exists.", page_file);
       }
       return;
@@ -151,7 +154,7 @@ var generate = exports.generate = function(options) {
    ********************************************************************/
 
 function writeJson(file, object) {
-  fs.writeFileSync(file, JSON.stringify(object, null, 2));
+  fs.writeFileSync(file, JSON.stringify(object, null, 2) + "\n");
 }
 
 function toAbsoluteUrl(url) {
