@@ -27,6 +27,7 @@ module.exports = {
     test.ok(config);
     test.equal('./content', config.content);
     test.equal('./static', config.static);
+    test.ok(config.dynamicHelpers);
     test.done();
   },
 
