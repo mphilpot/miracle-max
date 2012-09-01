@@ -214,7 +214,7 @@ module.exports = {
       request.get('http://localhost:' + TEST_PORT + '/test1.jade', function(e, r, body) {
         test.ifError(e);
         var requested_file = path.join(config.content_path, 'test1.jade');
-        var rendered_template = jade.compile(fs.readFileSync(requested_file), {filename: requested_file})({});
+        var rendered_template = renderFile(requested_file);
         test.equals(body + '', rendered_template + '');
         miracle_max.stopDevServer();
         test.done();
@@ -248,6 +248,8 @@ module.exports = {
     miracle_max.createPage({path: '/test3', duplicate: '/test2'});
     miracle_max.generate();
     test.ok(fs.existsSync(path.join('static', '/test1.html')));
+    test.equals(renderFile(path.join('content', '/test1.jade')),
+        fs.readFileSync(path.join('static', '/test1.html'), 'utf8'));
     test.ok(fs.existsSync(path.join('static', '/test2.html')));
     test.ok(fs.existsSync(path.join('static', '/test3.html')));
     test.equals(fs.readFileSync(path.join('static', '/test2.html'), 'utf8'),
@@ -258,4 +260,9 @@ module.exports = {
 
 function parseJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+
+function renderFile(file, options) {
+  options = options || {};
+  return jade.compile(fs.readFileSync(file), {filename: file})(options);
 }

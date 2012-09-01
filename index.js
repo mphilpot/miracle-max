@@ -190,8 +190,12 @@ function renderJadeFileForUrl(config, url) {
     throw new Error('invalid sitemap path: ' + file_path);
   }
 
-  var template = fs.readFileSync(file_path, 'utf8');
-  return jade.compile(template, {filename: file_path})({});
+  return renderFile(file_path);
+}
+
+function renderFile(file, options) {
+  options = options || {};
+  return jade.compile(fs.readFileSync(file), {filename: file})(options);
 }
 
 /********************************************************************
