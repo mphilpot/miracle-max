@@ -210,9 +210,25 @@ module.exports = {
       miracle_max.runDevServer({port: TEST_PORT});
       request.get('http://localhost:' + TEST_PORT + '/test1.jade', function(e, r, body) {
         test.ifError(e);
-        var requested_file = path.join(config.content_path, 'test1.jade');
-        var rendered_template = renderFile(requested_file);
+        var rendered_template = renderFile('content/test1.jade');
         test.equals(body + '', rendered_template + '');
+        miracle_max.stopDevServer();
+        test.done();
+      });
+    },
+
+    servesJadeWithDyanmicHelpers: function(test) {
+      miracle_max.init();
+      var config = JSON.parse(fs.readFileSync(miracle_max.CONFIG_PATH, 'utf8'));
+      config.dynamicHelpers = { helper: 'helper1' };
+      fs.writeFileSync(miracle_max.CONFIG_PATH, JSON.stringify(config));
+      fs.mkdirSync('content');
+      fs.writeFileSync('content/test1.jade', '#{helper}');
+      miracle_max.runDevServer({port: TEST_PORT});
+      request.get('http://localhost:' + TEST_PORT + '/test1.jade', function(e, r, body) {
+        test.ifError(e);
+        var rendered_template = renderFile('content/test1.jade', config.dynamicHelpers);
+        test.equals(body, rendered_template);
         miracle_max.stopDevServer();
         test.done();
       });
