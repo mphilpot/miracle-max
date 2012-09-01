@@ -23,7 +23,7 @@ module.exports = {
 
   testInit: function(test) {
     miracle_max.init();
-    var config = JSON.parse(fs.readFileSync(path.join(this.tmp_dir, 'static-config.json')));
+    var config = parseJson(path.join(this.tmp_dir, 'static-config.json'));
     test.ok(config);
     test.equal('./content', config.content);
     test.equal('./static', config.static);
@@ -91,7 +91,7 @@ module.exports = {
       test.equals(fs.readFileSync(layout_path, 'utf8'),
         fs.readFileSync(miracle_max.LAYOUT_TEMPLATE, 'utf8'));
       test.ok(fs.existsSync(layout_path));
-      var sitemap = JSON.parse(fs.readFileSync(config.static_config.sitemap, 'utf8'));
+      var sitemap = parseJson(config.static_config.sitemap);
       test.ok(sitemap.hasOwnProperty('/test1'));
       test.done();
     },
@@ -157,7 +157,7 @@ module.exports = {
       miracle_max.init();
       miracle_max.createPage({path: '/test'});
       miracle_max.createPage({path: '/test1', duplicate: '/test'});
-      var sitemap = JSON.parse(fs.readFileSync('sitemap.json', 'utf8'));
+      var sitemap = parseJson('sitemap.json');
       test.ok(sitemap.hasOwnProperty('/test1'));
       test.equals(sitemap['/test1'].ref, '/test');
       test.done();
