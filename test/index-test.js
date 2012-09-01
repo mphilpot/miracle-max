@@ -91,6 +91,8 @@ module.exports = {
       test.equals(fs.readFileSync(layout_path, 'utf8'),
         fs.readFileSync(miracle_max.LAYOUT_TEMPLATE, 'utf8'));
       test.ok(fs.existsSync(layout_path));
+      var sitemap = JSON.parse(fs.readFileSync(config.static_config.sitemap, 'utf8'));
+      test.ok(sitemap.hasOwnProperty('/test1'));
       test.done();
     },
 

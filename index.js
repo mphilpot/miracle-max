@@ -54,8 +54,7 @@ var createPage = exports.createPage = function(options) {
     createFile(LAYOUT_TEMPLATE, layout_file);
   }
 
-  sitemap.set(options.page, {});
-  sitemap.save("sitemap", function (err) {});
+  addToSitemap(config, options.path);
 }
 
 var createLayout = exports.createLayout = function(options) {
@@ -88,8 +87,6 @@ var runDevServer = exports.runDevServer = function (options) {
   var file = new(staticLoader.Server)(staticPath);
   var jade = jadeLoader(templatePath);
 
-
-
   devServer = require('http').createServer(function(request, response) {
     request.addListener('end', function() {
       if (/^\/healthz$/.test(request.url)) {
@@ -98,17 +95,17 @@ var runDevServer = exports.runDevServer = function (options) {
 
       // TODO(philpott): Handle sitemap based requests
 
-      if (sitemap[request.url]) {
+      // if (sitemap[request.url]) {
 
-        return fs.readFile(d, 'utf8', function(err, data) {
-          if (err != null) {
-            next();
-            return;
-          }
-          res.writeHead(200, { 'Content-Type': 'text/html' });
-          res.end(jade.compile(data, jadeOptions)({}));
-        });
-      }
+      //   return fs.readFile(d, 'utf8', function(err, data) {
+      //     if (err != null) {
+      //       next();
+      //       return;
+      //     }
+      //     res.writeHead(200, { 'Content-Type': 'text/html' });
+      //     res.end(jade.compile(data, jadeOptions)({}));
+      //   });
+      // }
 
       // TODO: handle /
       if (/jade$/.test(request.url)) {
@@ -155,6 +152,12 @@ function writeFile(destination, contents) {
   });
 }
 
+function addToSitemap(config, url) {
+  config.sitemap[url] = {};
+  fs.writeFileSync(config.static_config.sitemap,
+      JSON.stringify(config.sitemap, null, 2));
+}
+
 /********************************************************************
 * Configuration
 ********************************************************************/
@@ -179,7 +182,11 @@ var loadConfiguration = exports.loadConfiguration = function() {
 
   // load sitemap
   if (fs.existsSync(config.static_config.sitemap)) {
-    config.sitemap = JSON.parse(fs.readFileSync(config.static_config.sitemap));
+    try {
+      config.sitemap = JSON.parse(fs.readFileSync(config.static_config.sitemap, 'utf8'));
+    } catch (err) {
+      console.log("%s", fs.readFileSync(config.static_config.sitemap, 'utf8'));
+    }
   }
 
   config.content_path = config.static_config.content;
