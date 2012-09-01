@@ -181,6 +181,21 @@ module.exports = {
       });
     },
 
+    servesFromSitemap: function(test) {
+      miracle_max.init();
+      var config = miracle_max.loadConfiguration();
+      miracle_max.createPage({path: 'test1'})
+      miracle_max.runDevServer({port: TEST_PORT});
+      request.get('http://localhost:' + TEST_PORT + '/test1', function(e, r, body) {
+        test.ifError(e);
+        var requested_file = path.join(config.content_path, 'test1.jade');
+        var rendered_template = jade.compile(fs.readFileSync(requested_file), {filename: requested_file})({});
+        test.equals(body + '', rendered_template + '');
+        miracle_max.stopDevServer();
+        test.done();
+      });
+    },
+
     servesJade: function(test) {
       miracle_max.init();
       var config = miracle_max.loadConfiguration();

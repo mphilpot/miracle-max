@@ -89,26 +89,18 @@ var runDevServer = exports.runDevServer = function (options) {
 
   devServer = require('http').createServer(function(request, response) {
     request.addListener('end', function() {
+
       if (/^\/healthz$/.test(request.url)) {
         response.end("ok");
-      }
-
-      // TODO(philpott): Handle sitemap based requests
-
-      // if (sitemap[request.url]) {
-
-      //   return fs.readFile(d, 'utf8', function(err, data) {
-      //     if (err != null) {
-      //       next();
-      //       return;
-      //     }
-      //     res.writeHead(200, { 'Content-Type': 'text/html' });
-      //     res.end(jade.compile(data, jadeOptions)({}));
-      //   });
-      // }
-
-      // TODO: handle /
-      if (/jade$/.test(request.url)) {
+      } else if (config.sitemap.hasOwnProperty(request.url)) {
+        try {
+          response.writeHead(200, { 'Content-Type': 'text/html' });
+          response.end(renderJadeFileForUrl(config, request.url));
+        } catch(err) {
+          console.log('sitemap error ' + err);
+        }
+        return;
+      } else if (/jade$/.test(request.url)) {
         jade(request, response);
       } else {
         file.serve(request, response);
@@ -156,6 +148,17 @@ function addToSitemap(config, url) {
   config.sitemap[url] = {};
   fs.writeFileSync(config.static_config.sitemap,
       JSON.stringify(config.sitemap, null, 2));
+}
+
+function renderJadeFileForUrl(config, url) {
+  var file_path = path.join(config.content_path, url) + '.jade';
+
+  if(!fs.existsSync(file_path)) {
+    throw new Error('invalid sitemap path: ' + file_path);
+  }
+
+  var template = fs.readFileSync(file_path, 'utf8');
+  return jade.compile(template, {filename: file_path})({});
 }
 
 /********************************************************************
