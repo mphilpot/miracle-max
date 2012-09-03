@@ -246,16 +246,32 @@ var loadConfiguration = exports.loadConfiguration = function() {
  * Console/Program
  ********************************************************************/
 
-program.command('init').description('creates configs used by the static content generator').action(init);
+program.command('init')
+    .description('creates configs used by the static content generator')
+    .action(init);
 
-program.command('generate').description('generate static content from templates').action(generate);
+program.command('generate')
+    .description('generate static content from templates')
+    .action(generate);
 
-program.command('dev').description('run a server that allows you to test template changes').option('-p, --port <port>', 'port to run the dev server on', 8080).action(runDevServer).on('--help', function() {
-  console.log('static -s static -v views -p 8080')
-});
+program.command('dev')
+    .description('run a server that allows you to test template changes')
+    .option('-p, --port <port>', 'port to run the dev server on', 8080)
+    .action(runDevServer).on('--help', function() {
+      console.log('static -s static -v views -p 8080')
+    });
 
-program.command('page').description('generate a page').option('-p, --path <path>', 'path of the page').option('-d, --duplicate <path>', 'path of the page to duplicate').action(createPage);
+program.command('page')
+    .description('generate a page')
+    .option('-p, --path <path>', 'path of the page')
+    .option('-d, --duplicate <path>', 'path of the page to duplicate')
+    .action(createPage);
 
-program.command('layout').description('generate a layout').option('-n, --layout <layout>', 'Name of the file?').action(createLayout);
+program.command('layout')
+    .description('generate a layout')
+    .option('-n, --layout <layout>', 'Name of the file?')
+    .action(createLayout);
 
-program.version('0.0.2').parse(process.argv);
+program
+    .version('0.0.2')
+    .parse(process.argv);
