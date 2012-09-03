@@ -1,7 +1,7 @@
 {
-  "name": "roberts-static",
+  "name": "micacle-max",
   "version": "0.0.1",
-  "description": "Static content for project roberts",
+  "description": "Static content generator",
   "main": "index.js",
   "dependencies": {
     "node-static": "~0.6.0",
