@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+console.log(process.cwd())
+
+var express = require('express');
+var fs = require('fs')
+var util = require('util');
+var expressValidator = require('express-validator');
+var Path = require('path');
+var brackets = require('brackets');
+
+var config = require('../lib/config')();
+var Server = require('../lib/server');
+var server  = new Server(config);
+
+if (!module.parent) {
+  server.start();
+  console.log(util.format('http://localhost:%s/_sitemap/', config.port));
+}

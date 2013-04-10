@@ -1,0 +1,36 @@
+extends layout
+
+block scripts
+  script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js")
+  script(src="editor.js")
+  style
+    .spacer { display: inline-block; margin: 0px 5px;}
+    .delete { display: inline-block; margin-left: 15px; color: red;}
+
+block vars
+
+block content
+  h1 Sitemap
+
+  div(ng-controller='SitemapCtrl')
+    p
+      form.form-inline(ng-submit='submit()', id='add_page')
+        input(class="span2", id="path", type="text", ng-model='data.path', placeholder="New page path")
+        input.spacer(class="btn", type='submit', value='Add Page', id='add_page_submit')
+
+    div.row(ng-repeat="page in pages")
+      div.span4
+        a(href="{{page.path}}") {{page.path}}
+        span(ng-show="!!page.options.ref")
+          i.icon-arrow-right.spacer
+          | copy of {{page.options.ref}}
+        span(ng-show="!!page.options.authRequired")
+          i.icon-lock.spacer
+      div.span1
+        i.icon-remove.delete(ng-click='deletePage(page);')
+
+  script
+     angular.element(document).ready(function() {
+       angular.bootstrap(document);
+     });
+
