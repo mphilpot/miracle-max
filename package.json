@@ -1,6 +1,6 @@
 {
   "name": "MiracleMax",
-  "version": "0.5",
+  "version": "0.0.5",
   "description": "Static content generator",
   "main": "index.js",
   "bin": {
