@@ -17,7 +17,9 @@
   "license": "BSD",
   "dependencies": {
     "jade": "~0.28.2",
-    "express": "~3.1.0"
+    "express": "~3.1.0",
+    "express-validator": "~0.3.2",
+    "node-brackets": "~0.1.1"
   },
   "devDependencies": {
     "ncp": "~0.4.2",
