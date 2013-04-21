@@ -26,9 +26,6 @@ describe('server-test.js', function () {
   afterEach(function (done) {
     process.chdir(cwd);
     server.stop(done);
-  });
-
-  after(function () {
     nodeTemp.cleanup();
   });
 
@@ -47,7 +44,6 @@ describe('server-test.js', function () {
     request(siteUrl + '/index', function(e, r, body) {
       assert.ifError(e);
       assert.equal('index', body.trim());
-      // console.log(body)
       done();
     });
   });

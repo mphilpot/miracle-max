@@ -19,7 +19,8 @@
     "jade": "~0.28.2",
     "express": "~3.1.0",
     "express-validator": "~0.3.2",
-    "node-brackets": "~0.1.1"
+    "node-brackets": "~0.1.1",
+    "brackets": "~0.3.0"
   },
   "devDependencies": {
     "ncp": "~0.4.2",

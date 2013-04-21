@@ -27,9 +27,6 @@ describe('editor-test.js', function () {
   afterEach(function (done) {
     process.chdir(cwd);
     server.close(done);
-  });
-
-  after(function () {
     nodeTemp.cleanup();
   });
 
