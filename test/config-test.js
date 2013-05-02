@@ -11,7 +11,8 @@ describe('config-test.js', function () {
     public: 'static',
     views: 'template',
     sitemap: 'sitemap.json',
-    port: 8888
+    port: 8888,
+    out: 'out'
   });
 
   var sitemapJson = JSON.stringify({
@@ -36,6 +37,7 @@ describe('config-test.js', function () {
     assert.equal(path.resolve(tempDir, 'public'), config.public);
     assert.equal(path.resolve(tempDir, 'views'), config.views);
     assert.equal(8888, config.port);
+    assert.equal(path.resolve(tempDir, 'out'), config.out);
   });
 
   it('loads default configuration file location', function () {
@@ -45,6 +47,7 @@ describe('config-test.js', function () {
     assert.deepEqual(JSON.parse(sitemapJson), config.sitemap)
     assert.equal(path.resolve(tempDir, 'static'), config.public);
     assert.equal(path.resolve(tempDir, 'template'), config.views);
+    assert.equal(path.resolve(tempDir, 'out'), config.out);
   });
 
   it('loads custom configuration path', function () {
@@ -54,6 +57,7 @@ describe('config-test.js', function () {
     assert.deepEqual(JSON.parse(sitemapJson), config.sitemap)
     assert.equal(path.resolve(tempDir, 'static'), config.public);
     assert.equal(path.resolve(tempDir, 'template'), config.views);
+    assert.equal(path.resolve(tempDir, 'out'), config.out);
   });
 });
 

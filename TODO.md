@@ -6,4 +6,5 @@ A simple CMS based on express. Can be run seperately or bound into express.
 
 [] Support template local values
 [] Support custom attributes
-[] Figure out a better testing scheme/template
+[] temp directories aren't being cleaned up :(
+[] support less
