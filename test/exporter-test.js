@@ -40,4 +40,17 @@ describe('exporter-test.js', function () {
       done();
     });
   });
+
+  it('exports less', function (done) {
+    request.get(siteUrl + "/_sitemap/export", function(e, r, body) {
+      assert.ifError(e);
+      var response = JSON.parse(body);
+      assert.equal(response.status, 'success');
+      var lessFile = path.join(tempDir, 'out', 'css/l.less');
+      assert.ok(fs.existsSync(lessFile));
+      var lessContents = fs.readFileSync(lessFile).toString();
+      assert.equal('body {\n  color: #ff0000;\n}', lessContents.trim());
+      done();
+    });
+  });
 });

@@ -34,7 +34,14 @@ describe('preview-test.js', function () {
     request(siteUrl + '/index', function(e, r, body) {
       assert.ifError(e);
       assert.equal('index', body.trim());
-      // console.log(body)
+      done();
+    });
+  });
+
+  it('test less renders', function (done) {
+    request(siteUrl + '/css/l.less', function(e, r, body) {
+      assert.ifError(e);
+      assert.equal('body {\n  color: #ff0000;\n}', body.trim());
       done();
     });
   });
