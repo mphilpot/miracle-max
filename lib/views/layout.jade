@@ -27,13 +27,16 @@ html
             span.icon-bar
             span.icon-bar
           a.brand(href="#") Site Editor
-          div.nav-collapse.collapse
+          div.nav-collapse.collapse(ng-controller="NavbarCtrl")
             ul.nav
               li.active
                 a(href="/_sitemap/") Sitemap
               li
                 a(href="/_sitemap/brackets/") Editor
               li
-                a(href="/_sitemap/export") Publish
+                a(href="#", ng-click="publish();") Publish
     div.container
+      div#notification(class="{{style}}", ng-controller="NotificationCtrl")(style="display: none;")
+        button(type="button", class="close", ng-click="close();") &times;
+        {{message}}
       block content
