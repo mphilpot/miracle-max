@@ -2,6 +2,8 @@ extends layout
 
 block scripts
   script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js")
+  script(src="jquery.fileupload.js")
+  script(src="jquery.iframe-transport.js")
   script(src="editor.js")
   style
     .spacer { display: inline-block; margin: 0px 5px;}
@@ -29,8 +31,8 @@ block content
       div.span1
         i.icon-remove.delete(ng-click='deletePage(page);')
 
-  script
-     angular.element(document).ready(function() {
-       angular.bootstrap(document);
-     });
+  h3 Upload Images
+  div(ng-controller='UploadCtrl')
+      input#file_upload(type='file', name='file')
+
 
