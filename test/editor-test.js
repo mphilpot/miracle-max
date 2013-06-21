@@ -64,6 +64,22 @@ describe('editor-test.js', function () {
     });
   });
 
+  it('creates a page forgetting the first slash', function (done) {
+    var req = {
+      url: siteUrl + "/_sitemap/create",
+      json: {
+        path: "foo2"
+      }
+    }
+    request.post(req, function(e, r, body) {
+      assert.ok(fs.existsSync('views/foo2.jade'));
+      assert.equal(3, body.length)
+      console.log(body);
+      assert.equal(body[2].path, "/foo2");
+      done();
+    });
+  });
+
   it('deletes a page', function (done) {
     var req = {
       url: siteUrl + "/_sitemap/create",

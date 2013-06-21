@@ -21,8 +21,9 @@ describe('config-test.js', function () {
   });
 
   before(function () {
-    var tempDir = nodeTemp.mkdirSync();
+    tempDir = nodeTemp.mkdirSync();
     process.chdir(tempDir);
+    tempDir = process.cwd();
   });
 
   after(function () {
@@ -34,6 +35,8 @@ describe('config-test.js', function () {
     fs.writeFileSync(path.resolve(tempDir, 'sitemap.json'), sitemapJson);
     var config = require('../lib/config')();
     assert.deepEqual(JSON.parse(sitemapJson), config.sitemap)
+    console.log('path: %s', path.resolve(tempDir, 'public'))
+    console.log('config path: %s', config.public)
     assert.equal(path.resolve(tempDir, 'public'), config.public);
     assert.equal(path.resolve(tempDir, 'views'), config.views);
     assert.equal(8888, config.port);
