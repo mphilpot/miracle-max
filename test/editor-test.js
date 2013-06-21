@@ -74,7 +74,6 @@ describe('editor-test.js', function () {
     request.post(req, function(e, r, body) {
       assert.ok(fs.existsSync('views/foo2.jade'));
       assert.equal(3, body.length)
-      console.log(body);
       assert.equal(body[2].path, "/foo2");
       done();
     });

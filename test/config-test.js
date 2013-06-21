@@ -35,8 +35,6 @@ describe('config-test.js', function () {
     fs.writeFileSync(path.resolve(tempDir, 'sitemap.json'), sitemapJson);
     var config = require('../lib/config')();
     assert.deepEqual(JSON.parse(sitemapJson), config.sitemap)
-    console.log('path: %s', path.resolve(tempDir, 'public'))
-    console.log('config path: %s', config.public)
     assert.equal(path.resolve(tempDir, 'public'), config.public);
     assert.equal(path.resolve(tempDir, 'views'), config.views);
     assert.equal(8888, config.port);
@@ -66,7 +64,6 @@ describe('config-test.js', function () {
 
 function copyFile(target, destDir, destName) {
   var fileName = path.basename(target);
-  console.log("writing %s", path.resolve(destDir, destName || fileName))
   fs.writeFileSync(path.resolve(destDir, destName || fileName),
       fs.readFileSync(target));
 }
