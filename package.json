@@ -26,7 +26,8 @@
     "less-middleware": "~0.1.11",
     "ncp": "~0.4.2",
     "request": "~2.16.6",
-    "markdown": "~0.4.0"
+    "markdown": "~0.4.0",
+    "chokidar": "~0.6.2"
   },
   "devDependencies": {
     "assert": "~0.4.9",
